@@ -15,18 +15,18 @@ browser, so the deployment holds no keys and stores nothing.
 
 ## Try it in one minute
 
-1. Open the app.
-2. Press **Fill with sample values** to populate the application fields.
-3. Drop in one of the sample labels from [`public/samples`](public/samples):
+Open the app, pick one of the built-in sample labels, and press **Check this
+label**. Each sample loads its matching application data, so nothing needs
+typing. The images also live in [`public/samples`](public/samples).
 
 | Sample | What it demonstrates |
 | --- | --- |
-| `compliant.png` | Everything agrees. Verifies clean. |
-| `brand-case.png` | Brand differs only in capitalization. Still passes. |
-| `warning-title-case.png` | Warning heading in title case. Rejected, citing 16.22(a)(2). |
-| `alcohol-mismatch.png` | Label says 40%, application says 45%. |
-| `proof-contradiction.png` | Label states 45% and 80 proof, which cannot both be true. |
-| `missing-warning.png` | No health warning at all. |
+| Compliant label | Everything agrees. Verifies clean. |
+| Brand in mixed case | Brand differs only in capitalization. Still passes. |
+| Warning not capitalized | Title-case heading. Rejected, citing 16.22(a)(2). |
+| Wrong alcohol content | Label says 40%, application says 45%. |
+| Proof contradicts ABV | Label states 45% and 80 proof, which cannot both be true. |
+| No health warning | The statement is missing entirely. |
 
 ## Setup
 
