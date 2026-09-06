@@ -6,14 +6,9 @@ import {
 } from "./normalize";
 import type { FieldCheck, FieldId } from "./types";
 
-/**
- * Above this similarity a difference is treated as probably cosmetic — OCR
- * noise or a spelling variant such as whisky/whiskey — and routed to an agent
- * rather than decided by the tool.
- */
+/** Above this, a difference goes to an agent rather than being decided here. */
 const REVIEW_THRESHOLD = 0.85;
 
-/** Millilitres per supported unit of measure. */
 const VOLUME_UNITS: Record<string, number> = {
   ml: 1,
   milliliter: 1,
@@ -44,11 +39,6 @@ function blank(value: string | null | undefined): boolean {
   return !value || collapseWhitespace(value).length === 0;
 }
 
-/**
- * Compares free text by meaning rather than by characters: values equal after
- * normalization pass outright, close values are flagged for review, and the
- * rest are mismatches.
- */
 export function compareText(
   fieldId: FieldId,
   label: string,
@@ -132,11 +122,7 @@ export function parseAlcoholContent(value: string): ParsedAlcoholContent {
   return { percent, proof };
 }
 
-/**
- * Compares the alcohol figure numerically, so "45% Alc./Vol. (90 Proof)" and a
- * recorded "45" are recognized as the same value, and additionally checks that
- * a stated proof agrees with the stated percentage.
- */
+/** Compares numerically, and checks any stated proof against the percentage. */
 export function compareAlcoholContent(
   expected: string | null,
   found: string | null,
@@ -237,10 +223,7 @@ export function parseNetContents(value: string): number | null {
   return factor === undefined ? null : amount * factor;
 }
 
-/**
- * Compares net contents by volume so equivalent expressions in different units
- * — "1 L" and "1000 mL" — are treated as equal.
- */
+/** Compares by volume, so "1 L" and "1000 mL" are equal. */
 export function compareNetContents(
   expected: string | null,
   found: string | null,

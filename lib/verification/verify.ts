@@ -15,9 +15,8 @@ import type {
 } from "./types";
 
 /**
- * A mismatch is a definite discrepancy, so it fails the application outright.
- * Anything unreadable or merely close is routed to an agent instead: the tool
- * exists to narrow what a human looks at, not to reject on its own authority.
+ * Only a definite discrepancy fails. Unreadable or close values go to an agent:
+ * the tool narrows what a human looks at rather than rejecting on its own.
  */
 function deriveVerdict(statuses: string[]): Verdict {
   if (statuses.includes("mismatch")) return "fail";

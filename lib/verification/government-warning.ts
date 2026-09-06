@@ -14,10 +14,7 @@ export const GOVERNMENT_WARNING_TEXT =
 
 const REQUIRED_HEADING = "GOVERNMENT WARNING";
 
-/**
- * Typography that 27 CFR 16.22(a)(2) governs but plain text cannot express.
- * Supplied by the extraction stage when it can report on rendering.
- */
+/** Typography 27 CFR 16.22(a)(2) governs but plain text cannot express. */
 export interface WarningFormatting {
   headingBold?: boolean;
   remainderBold?: boolean;
@@ -45,13 +42,9 @@ function check(
 }
 
 /**
- * Held to the statutory text rather than to a similarity threshold. Altered
- * wording, a re-cased heading, or a missing statement are each independently
- * grounds for rejection, so this check reports the specific defect instead of
- * a score.
- *
- * Case is enforced only on the heading: 27 CFR 16.22(a)(2) mandates capitals
- * for the first two words and says nothing about the case of the remainder.
+ * Held to the statutory text rather than a similarity threshold, since altered
+ * wording is itself grounds for rejection. Case is enforced only on the
+ * heading, which is all 16.22(a)(2) mandates.
  */
 export function checkGovernmentWarning(
   found: string | null,

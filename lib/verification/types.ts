@@ -5,24 +5,16 @@ export type FieldId =
   | "netContents"
   | "governmentWarning";
 
-/**
- * `review` exists because a strict pass/fail split would either auto-approve
- * near-misses or bury agents in false rejections. It marks differences a human
- * should judge rather than ones the tool is confident about.
- */
+/** `review` marks a difference a human should judge, not one the tool decides. */
 export type CheckStatus = "match" | "review" | "mismatch" | "missing";
 
 export interface FieldCheck {
   fieldId: FieldId;
   label: string;
   status: CheckStatus;
-  /** Value recorded in the COLA application. */
   expected: string | null;
-  /** Value read off the label artwork. */
   found: string | null;
-  /** Agent-facing explanation of why this status was assigned. */
   detail: string;
-  /** Regulatory basis, where the check enforces a specific rule. */
   citation?: string;
 }
 
@@ -33,10 +25,7 @@ export interface ApplicationData {
   netContents: string;
 }
 
-/**
- * Fields read from the label. Every field is nullable: extraction may fail on
- * any individual field without invalidating the rest of the label.
- */
+/** Nullable throughout: any single field can be unreadable without failing the rest. */
 export interface LabelExtraction {
   brandName: string | null;
   classType: string | null;

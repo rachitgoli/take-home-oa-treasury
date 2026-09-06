@@ -16,25 +16,17 @@ function fold(value: string): string {
     .toLowerCase();
 }
 
-/**
- * Folds away differences that carry no compliance meaning: character variants
- * a vision model may return in place of ASCII, diacritics, casing, and
- * punctuation. Applied to both sides of a comparison so that, for example,
- * "STONE'S THROW" and "Stone's Throw" reduce to the same string.
- */
+/** Drops casing, accents and punctuation so "STONE'S THROW" equals "Stone's Throw". */
 export function normalizeForComparison(value: string): string {
   return collapseWhitespace(fold(value).replace(/[^a-z0-9\s]/g, " "));
 }
 
-/**
- * As `normalizeForComparison`, but retains the characters that carry numeric
- * meaning, so decimal points and percent signs survive for parsing.
- */
+/** As above, but keeps `.` and `%` so decimals and percentages survive parsing. */
 export function normalizeNumeric(value: string): string {
   return collapseWhitespace(fold(value).replace(/[^a-z0-9%.\s]/g, " "));
 }
 
-/** Standardizes character variants and whitespace but preserves case and wording. */
+/** Standardizes character variants and whitespace, preserving case and wording. */
 export function normalizePreservingCase(value: string): string {
   return collapseWhitespace(
     value
@@ -64,18 +56,14 @@ export function levenshtein(a: string, b: string): number {
   return previous[b.length];
 }
 
-/** Edit distance as a 0–1 score, where 1 is identical. */
+/** Edit distance as a 0-1 score, where 1 is identical. */
 export function similarity(a: string, b: string): number {
   if (a.length === 0 && b.length === 0) return 1;
   const longest = Math.max(a.length, b.length);
   return (longest - levenshtein(a, b)) / longest;
 }
 
-/**
- * Locates the first word-level divergence between two strings, so a mismatch
- * can be reported as the specific wording that differs rather than as two
- * paragraphs the agent has to compare by eye.
- */
+/** Lets a mismatch name the offending word instead of printing two paragraphs. */
 export function firstWordDifference(
   expected: string,
   actual: string,
