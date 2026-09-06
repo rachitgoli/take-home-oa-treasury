@@ -30,7 +30,8 @@ typing. The images also live in [`public/samples`](public/samples).
 
 ## Setup
 
-Requires Node.js 20 or newer.
+Requires Node.js 22.12 or newer. The application itself runs on 20.9+, but the
+test runner does not. Developed on 22.17.
 
 ```bash
 npm install
@@ -46,11 +47,19 @@ optional; see [Label reading](#label-reading) below.
 | `npm run build` | Production build |
 | `npm test` | Unit tests |
 | `npm run test:e2e` | Runs real OCR over the sample labels |
+| `npm run verify:browser` | Drives the running app in a headless browser |
 | `npm run labels` | Regenerate the sample label images |
 | `npm run lint` | Lint |
 
-`npm run test:e2e` is separate because it downloads Tesseract language data on
-first run, which is slow and needs network access.
+The last three are separate from `npm test` because each needs something the
+unit tests do not: `test:e2e` downloads Tesseract language data on first run,
+and `verify:browser` needs a browser (`npx playwright install chromium`) and a
+server already running. It takes an optional URL and sample name, so it can be
+pointed at a deployment:
+
+```bash
+npm run verify:browser -- https://take-home-oa-treasury.vercel.app compliant.png
+```
 
 ## Approach
 
@@ -133,6 +142,7 @@ largest factor in staying inside the five-second budget the interviews set.
 | Text recognition | tesseract.js | Runs client-side, no key, no per-request cost |
 | Vision model | Gemini Flash-Lite, optional | Highest free-tier request allowance |
 | Tests | Vitest | |
+| Browser checks | Playwright | Verifies the path that only exists in a browser |
 | Sample labels | Generated from SVG with sharp | Reproducible and version-controlled |
 
 Comparison uses no third-party string library; the edit distance is about
@@ -184,15 +194,25 @@ components/              UI
 lib/
   verification/          comparison rules, no I/O
   extraction/            reading a label into fields
-scripts/                 sample label generation
+scripts/                 label generation and browser checks
 public/samples/          generated test labels
 docs/ASSIGNMENT.md       the original brief
 ```
 
 ## Testing
 
-Unit tests cover the comparison rules, including the specific cases the
-interviews described, plus OCR field parsing and the vision request and response
-shapes. The end-to-end suite runs real recognition over the six sample labels
-and asserts the resulting verdicts, which is what caught Tesseract skipping the
-brand name under its default page segmentation mode.
+Three layers, because each catches something the others cannot.
+
+**Unit tests** cover the comparison rules, including the specific cases the
+interviews described, plus OCR field parsing and the vision request and
+response shapes.
+
+**The end-to-end suite** runs real recognition over the six sample labels and
+asserts the resulting verdicts. This is what caught Tesseract skipping the
+brand name: it does not default to automatic page segmentation, and in
+single-block mode the largest text on the label is dropped silently.
+
+**The browser check** drives the running app with Playwright. Recognition
+happens client-side, so until the real page runs, the worker and language data
+loading inside the bundle are untested. It also reports elapsed time, which is
+how the five-second budget is checked against something real.
