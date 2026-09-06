@@ -6,7 +6,10 @@ application, and shows a compliance agent field by field where the two disagree.
 Built for the TTB take-home exercise. The brief is in
 [`docs/ASSIGNMENT.md`](docs/ASSIGNMENT.md).
 
-**Live demo:** _to be added_
+**Live demo:** https://take-home-oa-treasury.vercel.app
+
+No sign-in, no configuration, nothing to install. The label is read in the
+browser, so the deployment holds no keys and stores nothing.
 
 ![A label whose warning heading is in title case, rejected with its citation](docs/screenshot.png)
 
