@@ -8,6 +8,8 @@ Built for the TTB take-home exercise. The brief is in
 
 **Live demo:** _to be added_
 
+![A label whose warning heading is in title case, rejected with its citation](docs/screenshot.png)
+
 ## Try it in one minute
 
 1. Open the app.
