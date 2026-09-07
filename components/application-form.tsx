@@ -1,5 +1,6 @@
 "use client";
 
+import { SAMPLE_APPLICATION } from "@/lib/samples";
 import type { ApplicationData } from "@/lib/verification/types";
 
 interface Props {
@@ -8,19 +9,11 @@ interface Props {
   disabled?: boolean;
 }
 
-const FIELDS: { key: keyof ApplicationData; label: string; hint: string }[] = [
-  { key: "brandName", label: "Brand name", hint: "OLD TOM DISTILLERY" },
-  {
-    key: "classType",
-    label: "Class / type",
-    hint: "Kentucky Straight Bourbon Whiskey",
-  },
-  {
-    key: "alcoholContent",
-    label: "Alcohol content",
-    hint: "45% Alc./Vol. (90 Proof)",
-  },
-  { key: "netContents", label: "Net contents", hint: "750 mL" },
+const FIELDS: { key: keyof ApplicationData; label: string }[] = [
+  { key: "brandName", label: "Brand name" },
+  { key: "classType", label: "Class / type" },
+  { key: "alcoholContent", label: "Alcohol content" },
+  { key: "netContents", label: "Net contents" },
 ];
 
 export function ApplicationForm({ value, onChange, disabled }: Props) {
@@ -38,7 +31,7 @@ export function ApplicationForm({ value, onChange, disabled }: Props) {
             id={field.key}
             type="text"
             value={value[field.key]}
-            placeholder={field.hint}
+            placeholder={SAMPLE_APPLICATION[field.key]}
             disabled={disabled}
             onChange={(event) =>
               onChange({ ...value, [field.key]: event.target.value })

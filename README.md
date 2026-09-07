@@ -15,18 +15,19 @@ browser, so the deployment holds no keys and stores nothing.
 
 ## Try it in one minute
 
-Open the app, pick one of the built-in sample labels, and press **Check this
-label**. Each sample loads its matching application data, so nothing needs
-typing. The images also live in [`public/samples`](public/samples).
+Open the app, pick one of the built-in samples, and press **Check this label**.
+Each one is a separate application for a different product, and choosing it
+loads both the artwork and the data submitted with it, so nothing needs typing.
+The images also live in [`public/samples`](public/samples).
 
-| Sample | What it demonstrates |
-| --- | --- |
-| Compliant label | Everything agrees. Verifies clean. |
-| Brand in mixed case | Brand differs only in capitalization. Still passes. |
-| Warning not capitalized | Title-case heading. Rejected, citing 16.22(a)(2). |
-| Wrong alcohol content | Label says 40%, application says 45%. |
-| Proof contradicts ABV | Label states 45% and 80 proof, which cannot both be true. |
-| No health warning | The statement is missing entirely. |
+| Sample | Product | What it demonstrates |
+| --- | --- | --- |
+| Fully compliant | Ironwood Reserve, bourbon | Everything agrees. Verifies clean. |
+| Brand in mixed case | Verdant Hollow Botanicals, gin | Brand differs only in capitalization. Still passes. |
+| Warning not capitalized | Northern Spire, vodka | Title-case heading. Rejected, citing 16.22(a)(2). Its volume is also recorded as 1000 mL against a label reading 1 L, which still matches. |
+| Wrong alcohol content | Casa Miraflores, tequila | Label says 38%, application says 40%. |
+| Proof contradicts ABV | Salt Meadow, rum | Label states 43% and 80 proof, which cannot both be true. |
+| No health warning | Pine Fork Vineyards, cabernet | The statement is missing entirely. |
 
 ## Setup
 

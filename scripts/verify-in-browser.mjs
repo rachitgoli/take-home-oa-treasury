@@ -1,4 +1,3 @@
-import { join } from "node:path";
 import { chromium } from "playwright";
 
 const url = process.argv[2] ?? "http://localhost:3000";
@@ -17,11 +16,21 @@ page.on("pageerror", (error) => problems.push(`pageerror: ${error.message}`));
 
 await page.goto(url, { waitUntil: "networkidle" });
 
-await page.getByRole("button", { name: "Fill with sample values" }).click();
-await page.setInputFiles(
-  'input[type="file"]',
-  join(process.cwd(), "public", "samples", sample),
+// Going through the picker rather than the file input means the sample image
+// and its application data are loaded the same way a reviewer loads them.
+const available = await page.evaluate(() =>
+  Array.from(document.querySelectorAll("[data-sample]")).map((button) =>
+    button.getAttribute("data-sample"),
+  ),
 );
+
+if (!available.includes(sample)) {
+  console.error(`Unknown sample "${sample}". Available: ${available.join(", ")}`);
+  await browser.close();
+  process.exit(1);
+}
+
+await page.click(`[data-sample="${sample}"]`);
 
 const started = Date.now();
 await page.getByRole("button", { name: "Check this label" }).click();

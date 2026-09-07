@@ -2,19 +2,12 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createWorker, type Worker } from "tesseract.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { ApplicationData } from "@/lib/verification/types";
+import { SAMPLE_LABELS } from "@/lib/samples";
 import { verify } from "@/lib/verification/verify";
 import { configureWorker } from "./ocr";
 import { extractFieldsFromOcr, type OcrLine } from "./parse-ocr";
 
 const SAMPLES = join(process.cwd(), "public", "samples");
-
-const APPLICATION: ApplicationData = {
-  brandName: "OLD TOM DISTILLERY",
-  classType: "Kentucky Straight Bourbon Whiskey",
-  alcoholContent: "45% Alc./Vol. (90 Proof)",
-  netContents: "750 mL",
-};
 
 let worker: Worker;
 
@@ -34,6 +27,14 @@ async function read(file: string) {
   return extractFieldsFromOcr(data.text ?? "", lines);
 }
 
+/** Each sample carries its own application record, so pair them by filename. */
+async function check(file: string) {
+  const sample = SAMPLE_LABELS.find((entry) => entry.file === file);
+  if (!sample) throw new Error(`No sample is registered for ${file}`);
+
+  return verify(sample.application, await read(file));
+}
+
 describe("OCR over the sample labels", () => {
   beforeAll(async () => {
     worker = await createWorker("eng");
@@ -45,7 +46,7 @@ describe("OCR over the sample labels", () => {
   });
 
   it("passes a fully compliant label", async () => {
-    const report = verify(APPLICATION, await read("compliant.png"));
+    const report = await check("compliant.png");
 
     expect(
       report.checks.map((check) => `${check.fieldId}:${check.status}`),
@@ -60,15 +61,23 @@ describe("OCR over the sample labels", () => {
   }, 60_000);
 
   it("catches a title-case warning heading", async () => {
-    const report = verify(APPLICATION, await read("warning-title-case.png"));
+    const report = await check("warning-title-case.png");
     const warning = report.checks.at(-1)!;
 
     expect(warning.status).toBe("mismatch");
     expect(warning.citation).toBe("27 CFR 16.22(a)(2)");
   }, 60_000);
 
+  it("accepts a label in litres against a record in millilitres", async () => {
+    const report = await check("warning-title-case.png");
+
+    expect(
+      report.checks.find((check) => check.fieldId === "netContents")?.status,
+    ).toBe("match");
+  }, 60_000);
+
   it("catches an alcohol content that differs from the application", async () => {
-    const report = verify(APPLICATION, await read("alcohol-mismatch.png"));
+    const report = await check("alcohol-mismatch.png");
 
     expect(report.verdict).toBe("fail");
     expect(
@@ -77,7 +86,7 @@ describe("OCR over the sample labels", () => {
   }, 60_000);
 
   it("catches a label whose proof contradicts its percentage", async () => {
-    const report = verify(APPLICATION, await read("proof-contradiction.png"));
+    const report = await check("proof-contradiction.png");
     const alcohol = report.checks.find(
       (check) => check.fieldId === "alcoholContent",
     )!;
@@ -87,13 +96,13 @@ describe("OCR over the sample labels", () => {
   }, 60_000);
 
   it("reports a label with no warning at all", async () => {
-    const report = verify(APPLICATION, await read("missing-warning.png"));
+    const report = await check("missing-warning.png");
 
     expect(report.checks.at(-1)!.status).toBe("missing");
   }, 60_000);
 
   it("passes a brand that differs only in capitalization", async () => {
-    const report = verify(APPLICATION, await read("brand-case.png"));
+    const report = await check("brand-case.png");
 
     expect(
       report.checks.find((check) => check.fieldId === "brandName")?.status,

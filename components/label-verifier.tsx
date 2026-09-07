@@ -8,7 +8,7 @@ import { SamplePicker } from "@/components/sample-picker";
 import { extractLabel, type ExtractionStage } from "@/lib/extraction/client";
 import { warmUpOcr } from "@/lib/extraction/ocr";
 import { ExtractionError, type ExtractionSource } from "@/lib/extraction/types";
-import { SAMPLE_APPLICATION } from "@/lib/samples";
+import { SAMPLE_APPLICATION, type SampleLabel } from "@/lib/samples";
 import type { ApplicationData, VerificationReport } from "@/lib/verification/types";
 import { verify } from "@/lib/verification/verify";
 
@@ -38,6 +38,7 @@ interface Outcome {
 
 export function LabelVerifier() {
   const [file, setFile] = useState<File | null>(null);
+  const [sample, setSample] = useState<SampleLabel | null>(null);
   const [application, setApplication] = useState<ApplicationData>(EMPTY);
   const [stage, setStage] = useState<ExtractionStage | null>(null);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
@@ -93,15 +94,24 @@ export function LabelVerifier() {
     }
   }
 
-  function chooseSample(sample: File) {
-    setFile(sample);
-    setApplication(SAMPLE_APPLICATION);
+  function chooseSample(chosen: SampleLabel, image: File) {
+    setFile(image);
+    setSample(chosen);
+    setApplication(chosen.application);
     setOutcome(null);
     setError(null);
   }
 
+  // An uploaded image has no application record of its own, so any sample
+  // loaded earlier no longer describes what is on screen.
+  function selectFile(chosen: File | null) {
+    setFile(chosen);
+    setSample(null);
+  }
+
   function reset() {
     setFile(null);
+    setSample(null);
     setApplication(EMPTY);
     setOutcome(null);
     setError(null);
@@ -126,7 +136,7 @@ export function LabelVerifier() {
             <p className="mb-3 mt-1 text-zinc-600">
               The artwork submitted with the application.
             </p>
-            <ImageDrop file={file} onSelect={setFile} disabled={busy} />
+            <ImageDrop file={file} onSelect={selectFile} disabled={busy} />
           </div>
 
           {!file && <SamplePicker onChoose={chooseSample} disabled={busy} />}
@@ -139,11 +149,13 @@ export function LabelVerifier() {
             </h2>
             <button
               type="button"
-              onClick={() => setApplication(SAMPLE_APPLICATION)}
+              onClick={() =>
+                setApplication(sample?.application ?? SAMPLE_APPLICATION)
+              }
               disabled={busy}
               className="text-sm font-medium text-blue-700 underline underline-offset-2 hover:text-blue-900 disabled:opacity-50"
             >
-              Fill with sample values
+              {sample ? "Restore this sample's data" : "Fill with sample values"}
             </button>
           </div>
           <p className="mb-3 mt-1 text-zinc-600">
